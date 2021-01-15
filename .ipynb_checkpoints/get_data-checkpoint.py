@@ -2,7 +2,7 @@ from AutoDD_Rev2.AutoDD import *
 import argparse
 import logging
 
-def main():
+def refresh_data(interval):
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='AutoDD Optional Parameters')
 
@@ -29,13 +29,12 @@ def main():
 
     parser.add_argument('--filename', nargs='?', const='table_records', type=str, default='table_records',
                     help='Change the file name from table_records to whatever you wish')
-    
-    parser.add_argument('-dummy')
 
     args = parser.parse_args()
 
     print("Getting submissions...")
     # call reddit api to get results
+    args.interval = interval
     results_from_api = get_submission(args.interval/2, args.sub)  
 
     print("Searching for tickers...")
@@ -74,47 +73,7 @@ def main():
         results_tbl = getTickerInfo(results_tbl)
 
     args.csv = None
-    print_tbl(results_tbl, args.filename, args.allsub, args.yahoo, args.csv)
-
-
-def refresh_data(interval = 24, sub = 'pennystocks', min = 10, allsub = False, sort = 1, yahoo = False):
-    print("Getting submissions...")
-    # call reddit api to get results
-    results_from_api = get_submission(interval/2, sub)  
-
-    print("Searching for tickers...")
-    current_tbl, current_rockets, current_subs = get_freq_list(results_from_api[0])
-    prev_tbl, prev_rockets, prev_subs = get_freq_list(results_from_api[1])
-
-    # subs = {**current_subs, **prev_subs}
-    subs = current_subs + prev_subs
-
-    print("Populating results...")
-    results_tbl = combine_tbl(current_tbl, prev_tbl)
-
-    results_tbl = filter_tbl(results_tbl, min)
-
-    print("Counting rockets...")
-    results_tbl = append_rocket_tbl(results_tbl, current_rockets, prev_rockets)
-
-    if allsub:
-        print("Searching other subreddits...")
-        for api_result in results_from_api[2:]:
-            results_tbl = additional_filter(results_tbl, api_result)
-
-    print("Getting quick stats...")
-    results_tbl = getQuickStats(results_tbl)
-
-    if yahoo:
-        print("Getting yahoo finance information...")
-        results_tbl = getTickerInfo(results_tbl)
-
-    return print_tbl(results_tbl, 'None', allsub, yahoo, None), subs
-
-def main():
-    df, subs = refresh_data(24)
-    df.to_csv('table_records.csv', index = False)
-    pd.DataFrame(subs).to_json('submissions.json')
+    return print_tbl(results_tbl, args.filename, args.allsub, args.yahoo, args.csv)
 
 if __name__ == '__main__':
-    main()
+    print(refresh_data(24))
