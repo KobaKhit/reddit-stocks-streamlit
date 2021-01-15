@@ -78,7 +78,7 @@ def main():
     print_tbl(results_tbl, args.filename, args.allsub, args.yahoo, args.csv)
 
 
-def refresh_data(interval = 24, sub = 'pennystocks', min = 10, allsub = False, sort = 1, yahoo = False):
+def refresh_data(interval = 24, sub = 'pennystocks', min = 1, allsub = False, sort = 1, yahoo = False):
     print("Getting submissions...")
     # call reddit api to get results
     results_from_api = get_submission(interval/2, sub)  

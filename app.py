@@ -83,22 +83,30 @@ def scatter_plot(df,x,y, x_title = '', y_title = ''):
 
 def line_plot(data, x = 'date:T',y = 'close:Q', color = 'symbol'):
     chart = (
-        alt.Chart(data.reset_index(), title="This is the Chart Title")
+        alt.Chart(data.reset_index())
         .mark_line()
-        .encode(alt.Y(y, scale=alt.Scale(zero=False)), 
-                x=x, color=color,
+        .encode(y = alt.Y(y, scale=alt.Scale(zero=False), axis = alt.Axis(orient = 'right', title = '', format='$,r')), 
+                x=alt.X(x, scale=alt.Scale(zero=False), axis = alt.Axis(title = '')), 
+                color=alt.Color(color, legend=None),
                 tooltip = ['symbol','close:Q', 'date:T'])
         # .properties(
         #     width=660,
         #     height=400
         # )
-    )
-    st.write(chart)
+    ).configure_axis(
+        grid=False
+    ) .configure_view(strokeOpacity=0)
+    chart
+
+if session_state.clicked:
+    df, tickers, subs, history = session_state.df, session_state.tickers, session_state.subs, session_state.history 
+else:
+    df, tickers, interval, subs, history  = init()
 
 st.title('🚀🚀🚀 Reddit Stocks 🚀🚀🚀')
 col21,col22,col23,col24 = st.beta_columns(4)
 with col21:
-    ticker = st.empty()
+    tick = st.selectbox('Select Ticker to see additional info', tickers)
     my_expander = st.beta_expander('Refresh Data')
     with my_expander:
         interval = st.number_input("Last N hours", min_value = 1, max_value = 48, value = 24)
@@ -108,15 +116,7 @@ if clicked:
     session_state.clicked = True
     session_state.df, session_state.tickers, session_state.subs, session_state.history = pull_data(interval)
     st.balloons()
-
-if session_state.clicked:
-    df, tickers, subs, history = session_state.df, session_state.tickers, session_state.subs, session_state.history 
-else:
-    df, tickers, interval, subs, history  = init()
     
-with col21:
-    tick = ticker.selectbox('Select Ticker to see additional info', tickers)
-
 table = df if tick == 'All' else df[df.Code == tick]
 
 with col22:
