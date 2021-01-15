@@ -1,4 +1,4 @@
-from AutoDD_Rev2.AutoDD import *
+from AutoDD import *
 import argparse
 import logging
 
