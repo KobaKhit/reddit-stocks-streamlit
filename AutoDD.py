@@ -554,3 +554,21 @@ def getQuickStats(results_tbl):
                 filtered_tbl.append(entry)
 
     return filtered_tbl
+
+def getHistory(results_tbl, period = '1d', interval = '1d'):
+    results = []
+    for entry in results_tbl:
+        print(entry)
+        ticker = Ticker(entry)
+        if ticker is not None:
+            prices = ticker.history(period=period, interval=interval)
+            if type(prices) is not dict:
+                results.append(prices)
+
+    return pd.concat(results)
+
+def main():
+    
+    print(getHistory(['TANH','None','AAPL']))
+
+

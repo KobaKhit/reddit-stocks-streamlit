@@ -2,6 +2,7 @@ from AutoDD import *
 import argparse
 import logging
 
+
 def main():
     # Instantiate the parser
     parser = argparse.ArgumentParser(description='AutoDD Optional Parameters')
@@ -109,12 +110,30 @@ def refresh_data(interval = 24, sub = 'pennystocks', min = 10, allsub = False, s
         print("Getting yahoo finance information...")
         results_tbl = getTickerInfo(results_tbl)
 
-    return print_tbl(results_tbl, 'None', allsub, yahoo, None), subs
+    # print(results_tbl)
+    df = print_tbl(results_tbl, 'None', allsub, yahoo, None)
+    print(df)
+    # df_static = pd.read_csv('table_records.csv')
+    # tickers = list(set(df.Code.values) - set(df_statis.Code.values))
+    print("Getting history...")
+    history = getHistory(df.Code.values, '60d','30m').reset_index()
+    return df, subs, history
 
 def main():
-    df, subs = refresh_data(24)
+    df, subs, history = refresh_data(24)
+    
     df.to_csv('table_records.csv', index = False)
     pd.DataFrame(subs).to_json('submissions.json')
+    history.to_csv('history.csv')
+    
+    # df = pd.read_csv('table_records.csv')
+    # # history3d = getHistory(df.Code, '3d','30m').reset_index()
+    # # history3w = getHistory(df.Code, '3w','90m').reset_index()
+    # history3mo = getHistory(df.Code, '2mo','30m').reset_index()
+    # print(history3mo)
+    # history3mo.to_csv('history_2mo_30m.csv')
+    # # histories = {'3d':history3d, '3w':history3w, '3mo': history3mo}
+    # # print(histories)
 
 if __name__ == '__main__':
     main()
