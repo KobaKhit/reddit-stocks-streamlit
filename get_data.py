@@ -1,7 +1,7 @@
 from AutoDD import *
 import argparse
 import logging
-
+import datetime as dt
 
 def main():
     # Instantiate the parser
@@ -87,8 +87,11 @@ def refresh_data(interval = 24, sub = 'pennystocks', min = 1, allsub = False, so
     current_tbl, current_rockets, current_subs = get_freq_list(results_from_api[0])
     prev_tbl, prev_rockets, prev_subs = get_freq_list(results_from_api[1])
 
-    # subs = {**current_subs, **prev_subs}
+    # process submissions
     subs = current_subs + prev_subs
+    subs = pd.DataFrame(subs)
+    subs['created_date'] = subs['created_utc'] \
+            .apply( lambda x: dt.datetime.utcfromtimestamp(int(x)).strftime('%Y-%m-%d %H:%M:%S'))
 
     print("Populating results...")
     results_tbl = combine_tbl(current_tbl, prev_tbl)
@@ -110,20 +113,18 @@ def refresh_data(interval = 24, sub = 'pennystocks', min = 1, allsub = False, so
         print("Getting yahoo finance information...")
         results_tbl = getTickerInfo(results_tbl)
 
-    # print(results_tbl)
     df = print_tbl(results_tbl, 'None', allsub, yahoo, None)
-    print(df)
-    # df_static = pd.read_csv('table_records.csv')
-    # tickers = list(set(df.Code.values) - set(df_statis.Code.values))
+
     print("Getting history...")
-    history = getHistory(df.Code.values, '60d','30m').reset_index()
+    history = getHistory(df.Code.values, '60d','1d').reset_index()
     return df, subs, history
 
 def main():
-    df, subs, history = refresh_data(24)
     
+    df, subs, history = refresh_data(72)
+   
     df.to_csv('table_records.csv', index = False)
-    pd.DataFrame(subs).to_json('submissions.json')
+    subs.to_json('submissions.json')
     history.to_csv('history.csv')
     
     # df = pd.read_csv('table_records.csv')

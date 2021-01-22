@@ -1,0 +1,10 @@
+/* center altair charts in containers and column names in dataframes */
+.e19lei0e1, .css-1b32pqr {
+    text-align: center !important;
+    align-items: middle !important;
+}
+
+/* adjust right padding for full view buttons to avoid overflow */
+.css-9eqr5v {
+    right: -0.5rem
+}

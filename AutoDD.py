@@ -83,7 +83,7 @@ def get_submission(n, sub):
     m. for each subreddit in subreddit_dict, create a new results list from 2n hours ago until now
      """
 
-    fields = ['title', 'link_flair_text', 'selftext', 'score','url']
+    fields = ['title','author', 'link_flair_text', 'selftext', 'score','subreddit','created_utc','url']
 
     # val = subreddit_dict.pop(sub, None)
     val = sub
@@ -123,7 +123,16 @@ def get_submission(n, sub):
     return results
 
 
-
+def process_submission(gen):
+    fields = ['title','author', 'link_flair_text', 'selftext', 'score','subreddit','created_utc','url']
+    subs = []
+    for i in gen:
+        temp_dict = {}
+        for f in fields:
+            if hasattr(i,f):
+                temp_dict[f]  = getattr(i,f)
+        subs.append(temp_dict)
+    return subs
 
 def get_freq_list(gen):
     """
@@ -156,6 +165,7 @@ def get_freq_list(gen):
 
         # flair is worth bonus points
         if hasattr(i, 'link_flair_text'):
+            sub_dict['flair'] = i.link_flair_text
             if 'DD' in i.link_flair_text:
                 increment += bonus_points
             elif 'Catalyst' in i.link_flair_text:
@@ -176,10 +186,6 @@ def get_freq_list(gen):
             sub_dict['title'] = title
             sub_dict['tickers_extracted'] = list(title_extracted)
         
-        # search the url
-        if hasattr(i, 'url'):
-            sub_dict['url'] = i.url
-
         # search the text body for the ticker/tickers
         if hasattr(i, 'selftext'):
             selftext = ' ' + i.selftext + ' '
@@ -187,6 +193,11 @@ def get_freq_list(gen):
             rocket_tickers = selftext_extracted.union(title_extracted)
 
             sub_dict['tickers_extracted'] += list(selftext_extracted)
+        
+        for f in ['author','subreddit','created_utc','url']:
+            if hasattr(i,f):
+                sub_dict[f] = getattr(i,f)
+
 
         subs.append(sub_dict)
 
@@ -558,7 +569,6 @@ def getQuickStats(results_tbl):
 def getHistory(results_tbl, period = '1d', interval = '1d'):
     results = []
     for entry in results_tbl:
-        print(entry)
         ticker = Ticker(entry)
         if ticker is not None:
             prices = ticker.history(period=period, interval=interval)
@@ -569,6 +579,9 @@ def getHistory(results_tbl, period = '1d', interval = '1d'):
 
 def main():
     
-    print(getHistory(['TANH','None','AAPL']))
+    a = get_submission(2,'pennystocks')
+    print([i.title for i in a[0] if hasattr(i,'author')])
+    b = process_submission(a)
+    print(b)
 
 
