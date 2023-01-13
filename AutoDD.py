@@ -34,7 +34,7 @@ from collections import Counter
 from datetime import datetime, timedelta
 
 # Pip modules imports
-from psaw import PushshiftAPI
+from pmaw import PushshiftAPI
 from yahooquery import Ticker
 from tabulate import tabulate
 

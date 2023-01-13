@@ -196,7 +196,7 @@ else:
     df, tickers, interval, subs, history  = init()
 
 st.title('🚀🚀🚀 Reddit Stocks 🚀🚀🚀')
-col21,buffer,col22,col23 = st.beta_columns((2,1,2,3))
+col21,buffer,col22,col23 = st.beta_columns((2,1,2,4))
 
 with col21:
     ticker_select = st.empty()
@@ -218,7 +218,7 @@ with col22:
         st.markdown('### Links')
         get_urls(tick)
     else:
-        st.empty()
+        st.markdown('## Select ticker to see additional links')
 with col23:
     if tick != 'All':
         tradingview(tick,components, width=500)
@@ -244,12 +244,12 @@ subs = subs[subs.tickers_extracted.astype(str).str.contains(tick, na = False)] i
 subs = subs.sort_values(by = ['score'], ascending = False)
 
 
-    
 plots_expander = st.beta_expander('Plots and Analysis', expanded=True)
 with plots_expander:
-    col31,col32,col33,col34 = st.beta_columns(4)
+    col31,col32,col33 = st.beta_columns([1,4,1])
     with col31:
-        scatter_plot(table,'%Change','Change')
+        if tick == 'All':
+            scatter_plot(table,'%Change','Change')
     with col32: 
         chart = alt.Chart(subs, title = "Posts by hour").transform_aggregate(
             count = 'count(title):Q',
@@ -261,7 +261,10 @@ with plots_expander:
             tooltip=['flair',alt.Tooltip('created_date:T', format='%Y-%m-%d %H:%M')]
         ).configure(background='#000000'
         ).configure_axis(grid=False
-        ).configure_view(strokeOpacity=0)
+        ).configure_view(strokeOpacity=0
+        ).properties(
+            width=800,
+)
 
         chart
 
